@@ -70,6 +70,7 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
         locationManager.startMonitoringSignificantLocationChanges()
     }
    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+       //Another way let lastLocation = locations.last!
        updateLocation()
     }
     
@@ -82,15 +83,30 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
        // Notify the user of any errors.
     }
 
-    func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
+    public func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
     // Do something with the visit. 
     }
-
-//    func locationManager(_ manager: CLLocationManager,  didUpdateLocations locations: [CLLocation]) {
-//        let lastLocation = locations.last!
-               
-//        // Do something with the location. 
-//    } 
+    public  func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+    if let region = region as? CLCircularRegion {
+        let identifier = region.identifier
+        print(identifier)
+        //triggerTaskAssociatedWithRegionIdentifier(regionID: identifier)
+    }
+   }
+    func monitorRegionAtLocation(center: CLLocationCoordinate2D, identifier: String ) {
+        // Make sure the devices supports region monitoring.
+        if CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
+            // Register the region.
+            let maxDistance = locationManager.maximumRegionMonitoringDistance
+            let region = CLCircularRegion(center: center,
+                 radius: maxDistance, identifier: identifier)
+            region.notifyOnEntry = true
+            region.notifyOnExit = false
+       
+            locationManager.startMonitoring(for: region)
+            
+        }
+    }
 
 }
 
