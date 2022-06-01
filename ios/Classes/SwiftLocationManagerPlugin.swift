@@ -82,6 +82,16 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
        // Notify the user of any errors.
     }
 
+    func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
+    // Do something with the visit. 
+    }
+
+//    func locationManager(_ manager: CLLocationManager,  didUpdateLocations locations: [CLLocation]) {
+//        let lastLocation = locations.last!
+               
+//        // Do something with the location. 
+//    } 
+
 }
 
 

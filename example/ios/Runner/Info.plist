@@ -30,11 +30,8 @@
 	<string>We use your precise location. Location data is only collected when you are logged in for a session or otherwise active within the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We use your precise location. Location data is only collected when you are logged in for a session or otherwise active within the app.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Motion use.</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
 		<string>location</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
