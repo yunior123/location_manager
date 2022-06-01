@@ -35,17 +35,34 @@ class _MyAppState extends State<MyApp> {
               return const Text("No data");
             }
             final item = snapshot.data!;
+
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    item.longitude.toString(),
-                  ),
-                  Text(
-                    item.latitude.toString(),
-                  )
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: Table(
+                  children: [
+                    TableRow(children: [
+                      const Text("Latitude"),
+                      Text(item.latitude.toString()),
+                    ]),
+                    TableRow(children: [
+                      const Text("Longitude"),
+                      Text(item.longitude.toString()),
+                    ]),
+                    TableRow(children: [
+                      const Text("Accuracy"),
+                      Text(item.accuracy.toString()),
+                    ]),
+                    TableRow(children: [
+                      const Text("Altitude"),
+                      Text(item.altitude.toString()),
+                    ]),
+                    TableRow(children: [
+                      const Text("Speed"),
+                      Text(item.speed.toString()),
+                    ]),
+                  ],
+                ),
               ),
             );
           },
