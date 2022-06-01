@@ -1,7 +1,7 @@
 name: location_manager
 description: A new Flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/yunior123/location_manager
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
