@@ -60,8 +60,12 @@ class _MyAppState extends State<MyApp> {
                       Text(item.altitude.toString()),
                     ]),
                     TableRow(children: [
-                      const Text("Speed"),
+                      const Text("Speed(m/s)"),
                       Text(item.speed.toString()),
+                    ]),
+                    TableRow(children: [
+                      const Text("Building Floor"),
+                      Text(item.buildingFloor.toString()),
                     ]),
                   ],
                 ),
