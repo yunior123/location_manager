@@ -16,6 +16,7 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
         
         if CLLocationManager.locationServicesEnabled() {
               locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+              locationManager.distanceFilter = kCLDistanceFilterNone
               locationManager.allowsBackgroundLocationUpdates = true
               locationManager.pausesLocationUpdatesAutomatically = false
               locationManager.startUpdatingLocation()
@@ -35,9 +36,12 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
     // Entry point for the stream subscription, pushing location events to the stream sink
    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
        print(arguments!)
-       if( configureLocation()){
+       if(configureLocation()){
            self.eventSink = events
-           updateLocation()
+           guard let locationCoordinates = locationManager.location?.coordinate else {
+               return FlutterError(code: "ERROR", message: "Unable to get location", details: nil)
+           }
+           updateLocation(locationCoordinates: locationCoordinates)
            return nil
        }
        return FlutterError(code: "ERROR", message: "Location services are not enabled", details: nil)
@@ -51,8 +55,7 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
         return nil
     }
     
-    private func updateLocation(){
-        guard let locationCoordinates: CLLocationCoordinate2D = locationManager.location?.coordinate else { return }
+    private func updateLocation(locationCoordinates: CLLocationCoordinate2D){
     
         let data: [String: Any] = ["latitude": locationCoordinates.latitude, "longitude": locationCoordinates.longitude,]
         
@@ -70,8 +73,21 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
         locationManager.startMonitoringSignificantLocationChanges()
     }
    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-       //Another way let lastLocation = locations.last!
-       updateLocation()
+       
+       if let location = locations.last {
+           let locationCoordinates: CLLocationCoordinate2D = location.coordinate
+           
+           updateLocation(locationCoordinates: locationCoordinates)
+           
+           if !(UIApplication.shared.applicationState == .active) {
+               //App is in Background, Killed or suspended state
+               //Update location
+               //Create a New Region with current fetched location
+                // radius in meters
+                self.monitorRegionAtLocation(center: locationCoordinates,radius: 50.0, identifier: "uuid")
+  
+           }
+       }
     }
     
    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -84,27 +100,49 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
     }
 
     public func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
-    // Do something with the visit. 
+    // Do something with the visit.
     }
+    
+    public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+            print("did exit region")
+
+            locationManager.stopMonitoring(for: region)
+
+            //Start location manager and get current location
+            locationManager.startUpdatingLocation()
+        }
+    
     public  func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-    if let region = region as? CLCircularRegion {
-        let identifier = region.identifier
-        print(identifier)
-        //triggerTaskAssociatedWithRegionIdentifier(regionID: identifier)
+       print("did enter region")
+       if let region = region as? CLCircularRegion {
+          let identifier = region.identifier
+          print(identifier)
+          //triggerTaskAssociatedWithRegionIdentifier(regionID: identifier)
     }
    }
-    func monitorRegionAtLocation(center: CLLocationCoordinate2D, identifier: String ) {
+   public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+               if status == .authorizedAlways {
+                   // you're good to go!
+               }
+           }
+    
+    
+    func monitorRegionAtLocation(center: CLLocationCoordinate2D, radius: Double?, identifier: String ) {
         // Make sure the devices supports region monitoring.
         if CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
             // Register the region.
             let maxDistance = locationManager.maximumRegionMonitoringDistance
             let region = CLCircularRegion(center: center,
-                 radius: maxDistance, identifier: identifier)
+                 radius: radius ?? maxDistance, identifier: identifier)
             region.notifyOnEntry = true
-            region.notifyOnExit = false
+            region.notifyOnExit = true
        
+            //Stop your location manager for updating location and start region Monitoring
+            locationManager.stopUpdatingLocation()
             locationManager.startMonitoring(for: region)
             
+        }else{
+            print("No support for tracking regions")
         }
     }
 
