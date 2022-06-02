@@ -111,14 +111,18 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
            accuracy: accuracy, speed: speed, altitude: altitude
            )
            
-           if !(UIApplication.shared.applicationState == .active) {
-               //App is in Background, Killed or suspended state
-               //Update location
-               //Create a New Region with current fetched location
-                // radius in meters
-                self.monitorRegionAtLocation(center: locationCoordinates,radius: 50.0, identifier: "uuid")
-  
+           if(UIApplication.shared.applicationState == .background){
+               print("The app is in the background")
            }
+           else if(UIApplication.shared.applicationState == .active){
+               print("The app is in the forground")
+           }
+           else if(UIApplication.shared.applicationState == .inactive){
+               print("The app is inactive")
+           }
+       }
+       else {
+           print("Unable to get location")
        }
     }
     

@@ -26,7 +26,9 @@ class _MyAppState extends State<MyApp> {
           stream: locationHandler.stream,
           builder: (context, AsyncSnapshot<LocationModel> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator.adaptive();
+              return const Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
             }
             if (snapshot.hasError) {
               return Text(snapshot.error.toString());
