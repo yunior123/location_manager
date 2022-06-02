@@ -7,6 +7,7 @@ class LocationModel {
   final double accuracy;
   final double heading;
   final int? buildingFloor;
+  //speed in meters per second.
   final double speed;
   final double speedAccuracy;
   LocationModel({
@@ -51,7 +52,6 @@ class LocationModel {
     }
     result.addAll({'speed': speed});
     result.addAll({'speedAccuracy': speedAccuracy});
-
     return result;
   }
 }

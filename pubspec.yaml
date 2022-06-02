@@ -1,6 +1,6 @@
 name: location_manager
 description: Plugin for handling location updates.
-version: 0.0.2
+version: 0.0.4
 homepage: https://github.com/yunior123/location_manager
 
 environment:

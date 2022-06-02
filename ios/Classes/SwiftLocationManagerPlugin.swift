@@ -38,10 +38,24 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
        print(arguments!)
        if(configureLocation()){
            self.eventSink = events
-           guard let locationCoordinates = locationManager.location?.coordinate else {
+  
+           guard let location = locationManager.location else {
                return FlutterError(code: "ERROR", message: "Unable to get location", details: nil)
            }
-           updateLocation(locationCoordinates: locationCoordinates)
+          
+           var accuracy:CLLocationDirectionAccuracy?
+           if #available(iOS 13.4, *) {
+               accuracy =  location.courseAccuracy
+           } else {
+               // course accuracy not available
+           }
+           let speed = location.speed
+           let altitude = location.altitude
+           let locationCoordinates = location.coordinate
+           
+           updateLocation(locationCoordinates: locationCoordinates,
+           accuracy: accuracy, speed: speed, altitude: altitude
+           )
            return nil
        }
        return FlutterError(code: "ERROR", message: "Location services are not enabled", details: nil)
@@ -55,9 +69,17 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
         return nil
     }
     
-    private func updateLocation(locationCoordinates: CLLocationCoordinate2D){
+    private func updateLocation(locationCoordinates: CLLocationCoordinate2D,
+                                accuracy: CLLocationDirectionAccuracy?,
+                                speed: CLLocationSpeed,
+                                altitude: CLLocationDistance){
     
-        let data: [String: Any] = ["latitude": locationCoordinates.latitude, "longitude": locationCoordinates.longitude,]
+        let data: [String: Any] = ["latitude": locationCoordinates.latitude,
+                                   "longitude": locationCoordinates.longitude,
+                                   "altitude": altitude,
+                                   "speed": speed,
+                                   "accuracy": accuracy ?? 0.0,
+        ]
         
         guard let eventSink = self.eventSink else {
              return
@@ -75,9 +97,19 @@ public class SwiftLocationManagerPlugin: NSObject, FlutterPlugin,FlutterStreamHa
    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
        
        if let location = locations.last {
+           var accuracy:CLLocationDirectionAccuracy?
+           if #available(iOS 13.4, *) {
+               accuracy =  location.courseAccuracy
+           } else {
+               // course accuracy not available
+           }
+           let speed = location.speed
+           let altitude = location.altitude
            let locationCoordinates: CLLocationCoordinate2D = location.coordinate
            
-           updateLocation(locationCoordinates: locationCoordinates)
+           updateLocation(locationCoordinates: locationCoordinates,
+           accuracy: accuracy, speed: speed, altitude: altitude
+           )
            
            if !(UIApplication.shared.applicationState == .active) {
                //App is in Background, Killed or suspended state
